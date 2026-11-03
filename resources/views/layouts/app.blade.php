@@ -73,7 +73,9 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link px-3 {{ request()->is('enrollments*') ? 'active fw-bold' : '' }}" href="/enrollments/create">Pendaftaran</a>
-                    </li>
+                    <li class="nav-item">
+    <a class="nav-link px-3 {{ request()->is('courses*') ? 'active fw-bold' : '' }}" href="{{ route('courses.index') }}">Daftar Kursus</a>
+</li>
                 </ul>
             </div>
         </div>

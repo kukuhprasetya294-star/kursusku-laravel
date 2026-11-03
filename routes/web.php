@@ -2,13 +2,22 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\EnrollmentController;
+use App\Http\Controllers\CourseController;
 
-// Halaman Beranda (Pertemuan 7)
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+*/
+
 Route::get('/', function () {
     return view('home');
 });
 
-// Halaman Form & Proses Ajax/Store (Pertemuan 9)
+// Route Pertemuan 9 - Enrollments & Ajax Check Seats
 Route::get('/enrollments/create', [EnrollmentController::class, 'create'])->name('enrollments.create');
-Route::get('/enrollments/check-seats', [EnrollmentController::class, 'checkSeats'])->name('enrollments.checkSeats');
 Route::post('/enrollments', [EnrollmentController::class, 'store'])->name('enrollments.store');
+Route::get('/enrollments/check-seats', [EnrollmentController::class, 'checkSeats'])->name('enrollments.checkSeats');
+
+// Route Pertemuan 10 - Course Management
+Route::resource('courses', CourseController::class);
