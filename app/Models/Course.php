@@ -10,10 +10,13 @@ class Course extends Model
     use HasFactory;
 
     protected $fillable = [
-        'title',
+        'code',
+        'name',
         'description',
+        'fee',
         'quota',
         'start_date',
+        'status',
     ];
 
     protected $casts = [

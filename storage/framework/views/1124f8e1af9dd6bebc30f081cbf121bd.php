@@ -2,7 +2,6 @@
 
 <?php $__env->startSection('content'); ?>
 <div class="container py-4">
-    <!-- Flash Session Message -->
     <?php if(session('success')): ?>
         <div class="alert alert-success border-0 shadow-sm rounded-3 mb-4 d-flex align-items-center gap-2" style="background-color: #ecfdf5; color: #065f46;" role="alert">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-check-circle-fill" viewBox="0 0 16 16">
@@ -17,7 +16,7 @@
             <span class="badge-pill d-inline-block mb-3">
                 Kursus teknologi untuk mahasiswa
             </span>
-            <h1 class="display-4 fw-bold text-slate-900 mb-3" style="color: #0f172a; letter-spacing: -0.02em;">
+            <h1 class="display-4 fw-bold mb-3" style="color: #0f172a; letter-spacing: -0.02em;">
                 Belajar lebih terarah <br><span style="color: #2563eb;">bersama Kursusku</span>
             </h1>
             <p class="lead text-secondary mb-4" style="max-width: 580px;">
