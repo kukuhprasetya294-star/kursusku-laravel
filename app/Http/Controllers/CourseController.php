@@ -2,16 +2,45 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreCourseRequest;
-use App\Http\Requests\UpdateCourseRequest;
 use App\Models\Course;
+use App\Models\Enrollment;
+use App\Models\Participant;
+use Illuminate\Http\Request;
 
 class CourseController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $courses = Course::latest()->get();
-        return view('courses.index', compact('courses'));
+        $search = trim((string) $request->query('q'));
+        $status = trim((string) $request->query('status'));
+        $allowedStatuses = ['open', 'closed', 'draft'];
+
+        $courses = Course::query()
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('code', 'like', "%{$search}%")
+                      ->orWhere('name', 'like', "%{$search}%");
+                });
+            })
+            ->when(in_array($status, $allowedStatuses, true), function ($query) use ($status) {
+                $query->where('status', $status);
+            })
+            ->orderBy('name')
+            ->paginate(10)
+            ->withQueryString();
+
+        if ($request->boolean('partial')) {
+            return view('courses._results', compact('courses'));
+        }
+
+        $stats = [
+            'total_courses' => Course::count(),
+            'open_courses' => Course::where('status', 'open')->count(),
+            'total_participants' => Participant::count(),
+            'total_enrollments' => Enrollment::count(),
+        ];
+
+        return view('courses.index', compact('courses', 'search', 'status', 'stats'));
     }
 
     public function create()
@@ -19,11 +48,21 @@ class CourseController extends Controller
         return view('courses.create');
     }
 
-    public function store(StoreCourseRequest $request)
+    public function store(Request $request)
     {
-        Course::create($request->validated());
+        $validated = $request->validate([
+            'code' => 'required|string|max:50|unique:courses,code',
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'fee' => 'required|integer|min:0',
+            'quota' => 'required|integer|min:1',
+            'start_date' => 'nullable|date',
+            'status' => 'required|in:open,closed,draft',
+        ]);
 
-        return to_route('courses.index')
+        Course::create($validated);
+
+        return redirect()->route('courses.index')
             ->with('success', 'Kursus berhasil ditambahkan.');
     }
 
@@ -37,11 +76,21 @@ class CourseController extends Controller
         return view('courses.edit', compact('course'));
     }
 
-    public function update(UpdateCourseRequest $request, Course $course)
+    public function update(Request $request, Course $course)
     {
-        $course->update($request->validated());
+        $validated = $request->validate([
+            'code' => 'required|string|max:50|unique:courses,code,' . $course->id,
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'fee' => 'required|integer|min:0',
+            'quota' => 'required|integer|min:1',
+            'start_date' => 'nullable|date',
+            'status' => 'required|in:open,closed,draft',
+        ]);
 
-        return to_route('courses.show', $course)
+        $course->update($validated);
+
+        return redirect()->route('courses.index')
             ->with('success', 'Kursus berhasil diperbarui.');
     }
 
@@ -49,7 +98,7 @@ class CourseController extends Controller
     {
         $course->delete();
 
-        return to_route('courses.index')
+        return redirect()->route('courses.index')
             ->with('success', 'Kursus berhasil dihapus.');
     }
 }
